@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+
+model User {
+  id        String   @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String   @unique
+  phone     String?  // Optional, as per create account form
+  role      Role     // e.g., "Admin"
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  COACH
+}
+
+
+model League {
+  league_id String   @id @default(cuid()) // PK updated to String CUID
+  name      String   @db.VarChar(100)
+  season    String?  @db.VarChar(50)
+  start_date DateTime?
+  end_date  DateTime?
+
+  // Relations
+  fixtures  Fixture[]
+  teams     Team[]
+}
+
+
+model Team {
+  team_id     String   @id @default(cuid()) // PK updated to String CUID
+  league_id   String   // FK type updated to String
+  name        String   @db.VarChar(100)
+  home_ground String?  @db.VarChar(100)
+  created_at  DateTime @default(now())
+
+  // Relations
+  league       League    @relation(fields: [league_id], references: [league_id])
+  homeFixtures Fixture[] @relation("HomeTeam")
+  awayFixtures Fixture[] @relation("AwayTeam")
+  players      Player[]
+}
+
+
+model Player {
+  player_id     String   @id @default(cuid()) // PK updated to String CUID
+  team_id       String   // FK type updated to String
+  first_name    String?  @db.VarChar(50)
+  last_name     String?  @db.VarChar(50)
+  position      String?  @db.VarChar(50)
+  date_of_birth DateTime?
+  jersey_number Int?
+
+  // Relations
+  team Team @relation(fields: [team_id], references: [team_id])
+}
+
+
+model Venue {
+  venue_id String   @id @default(cuid()) // PK updated to String CUID
+  name     String   @db.VarChar(100)
+  location String?  @db.VarChar(255)
+
+  // Relations
+  fixtures Fixture[]
+}
+
+
+model Referee {
+  referee_id          String   @id @default(cuid()) // PK updated to String CUID
+  full_name           String?  @db.VarChar(100)
+  certification_level String?  @db.VarChar(50)
+
+  // Relations
+  fixtures Fixture[]
+}
+
+
+model Fixture {
+  fixture_id   String   @id @default(cuid()) // PK updated to String CUID
+  league_id    String   // FK type updated to String
+  home_team_id String   // FK type updated to String
+  away_team_id String   // FK type updated to String
+  venue_id     String   // FK type updated to String
+  referee_id   String   // FK type updated to String
+  match_date   DateTime
+  status       FixtureStatus @default(Scheduled)
+
+  // Relations
+  league   League   @relation(fields: [league_id], references: [league_id])
+  homeTeam Team     @relation("HomeTeam", fields: [home_team_id], references: [team_id])
+  awayTeam Team     @relation("AwayTeam", fields: [away_team_id], references: [team_id])
+  venue    Venue    @relation(fields: [venue_id], references: [venue_id])
+  referee  Referee  @relation(fields: [referee_id], references: [referee_id])
+  
+  // FIX: Reciprocal 1:1 relation to Result
+  result   Result? 
+}
+
+enum FixtureStatus {
+  Scheduled
+  Completed
+  Postponed
+}
+
+
+model Result {
+  result_id  String   @id @default(cuid()) // PK updated to String CUID
+  fixture_id String   @unique // FIX: Foreign key type updated to String AND marked as @unique for 1:1
+  home_score Int?
+  away_score Int?
+  report     String?  @db.Text
+
+  // Relations
+  fixture Fixture @relation(fields: [fixture_id], references: [fixture_id])
+}
