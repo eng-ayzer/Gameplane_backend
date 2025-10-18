@@ -1,7 +1,7 @@
-## GamePlan API Documentation (Somali)
+## GamePlan API Documentation
 
 ### Table of Contents
-- [Guudmar](#guudmar)
+- [Overview](#overview)
 - [Tokens](#tokens)
 - [Endpoints Index](#endpoints-index)
 - [Auth](#auth)
@@ -16,42 +16,42 @@
 - [Headers](#headers)
 - [Postman Notes](#postman-notes)
 - [Error Model & Common Responses](#error-model--common-responses)
-- [Qodobo Muhiim ah](#qodobo-muhiim-ah)
+- [Important Notes](#important-notes)
 
-**Base URL**: `GamePlan`
+**Base URL**: `http://localhost:3000/api`
 
-### Guudmar
-- **Authentication**: JWT token ayaa looga baahan yahay dhammaan endpoints-ka marka laga reebo `Auth`. U isticmaal header: `Authorization: Bearer <JWT_TOKEN>`.
-- **Roles**: `ADMIN` iyo `COACH`. Howlo qiyaas ah (abuurid/cusboonaynid/tirtirid) waxay u baahan yihiin `ADMIN`.
+### Overview
+- **Authentication**: JWT token is required for all endpoints except `Auth`. Use header: `Authorization: Bearer <JWT_TOKEN>`.
+- **Roles**: `ADMIN` and `COACH`. Write operations (create/update/delete) require `ADMIN` role.
 - **Content-Type**: `application/json`
-- **CORS**: Waa la taageeraa (CORS enabled).
+- **CORS**: Supported (CORS enabled).
 
 ### Tokens
-- Waxaa la soo saaraa `JWT` oo leh sirta `process.env.JWT_SECRET` ama default `"mysecret"`.
-- Nolosha token-ka: `login` → 24 saac; `register` → 48 saac.
-- Ku gudbi token-ka sida: `Authorization: Bearer <token>`.
+- JWT tokens are generated with secret `process.env.JWT_SECRET` or default `"mysecret"`.
+- Token lifetime: `login` → 24 hours; `register` → 48 hours.
+- Send token as: `Authorization: Bearer <token>`.
 
 ---
 
 ### Endpoints Index
-- Auth: `GamePlan/auth/register`, `GamePlan/auth/login`
-- Users: `GamePlan/users`, `GamePlan/users/:id`
-- Leagues: `GamePlan/leagues`, `GamePlan/leagues/:id`
-- Teams: `GamePlan/teams`, `GamePlan/leagues/:leagueId/teams`, `GamePlan/teams/:id`
-- Players: `GamePlan/players`, `GamePlan/teams/:teamId/players`, `GamePlan/players/:id`
-- Fixtures: `GamePlan/fixtures`, `GamePlan/fixtures/:id`, `GamePlan/leagues/:leagueId/fixtures`, `GamePlan/teams/:teamId/fixtures`, `GamePlan/fixtures/date-range`, `GamePlan/fixtures/:id/status`
-- Results: `GamePlan/results`, `GamePlan/results/:id`, `GamePlan/fixtures/:fixtureId/result`, `GamePlan/leagues/:leagueId/results`, `GamePlan/teams/:teamId/results`
-- Referees: `GamePlan/referees`, `GamePlan/referees/:id`
-- Venues: `GamePlan/venues`, `GamePlan/venues/:id`
+- Auth: `/api/auth/register`, `/api/auth/login`
+- Users: `/api/users`, `/api/users/:id`
+- Leagues: `/api/leagues`, `/api/leagues/:id`
+- Teams: `/api/teams`, `/api/leagues/:leagueId/teams`, `/api/teams/:id`
+- Players: `/api/players`, `/api/teams/:teamId/players`, `/api/players/:id`
+- Fixtures: `/api/fixtures`, `/api/fixtures/:id`, `/api/leagues/:leagueId/fixtures`, `/api/teams/:teamId/fixtures`, `/api/fixtures/date-range`, `/api/fixtures/:id/status`
+- Results: `/api/results`, `/api/results/:id`, `/api/fixtures/:fixtureId/result`, `/api/leagues/:leagueId/results`, `/api/teams/:teamId/results`
+- Referees: `/api/referees`, `/api/referees/:id`
+- Venues: `/api/venues`, `/api/venues/:id`
 
-Fiiro: `server.js` waxa uu mount-gareeyaa routes sidan: users/teams/players/fixtures/results/referees/venues → `"/api"`, iyo auth → `"/api/auth"`. Maadaama aad codsatay Base URL `GamePlan`, halkan waxaan u muujinaynaa path-yada sida `GamePlan/...`. Haddii aad isticmaaleysid server-ka hadda jira, u dhigmaan waxay noqonayaan `/api/...` iyo `/api/auth/...`.
+Note: `server.js` mounts routes as follows: users/teams/players/fixtures/results/referees/venues → `"/api"`, and auth → `"/api/auth"`. The actual endpoints use `/api/...` and `/api/auth/...` prefixes.
 
 ---
 
 ### Auth
 
-- POST `GamePlan/auth/register`
-  - Sharaxaad: Diiwaangelinta user cusub.
+- POST `/api/auth/register`
+  - Description: Register a new user.
   - Body:
     ```json
     {
@@ -72,8 +72,8 @@ Fiiro: `server.js` waxa uu mount-gareeyaa routes sidan: users/teams/players/fixt
     ```
   - Notes: Token expiry 48h.
 
-- POST `GamePlan/auth/login`
-  - Sharaxaad: Gelitaanka user jira.
+- POST `/api/auth/login`
+  - Description: Login existing user.
   - Body:
     ```json
     { "email": "ali@example.com", "password": "Secret123!", "role": "ADMIN" }
@@ -93,30 +93,30 @@ Fiiro: `server.js` waxa uu mount-gareeyaa routes sidan: users/teams/players/fixt
 ### Users
 Requires: `Authorization: Bearer <JWT>`
 
-- GET `GamePlan/users` (ADMIN kaliya)
+- GET `/api/users` (ADMIN only)
   - Response 200:
     ```json
     { "success": true, "count": 2, "data": [ { "id": "...", "email": "..." } ] }
     ```
 
-- GET `GamePlan/users/:id` (ADMIN ama isla user-kaas)
+- GET `/api/users/:id` (ADMIN or same user)
   - Response 200:
     ```json
     { "success": true, "data": { "id": "...", "email": "..." } }
     ```
 
-- POST `GamePlan/users` (ADMIN kaliya)
-  - Body (tusaale):
+- POST `/api/users` (ADMIN only)
+  - Body (example):
     ```json
     { "firstName": "Layla", "lastName": "Ali", "email": "layla@example.com", "password": "Secret123!", "role": "COACH" }
     ```
   - Response 201: `{ "success": true, "data": { ... } }`
 
-- PUT `GamePlan/users/:id` (ADMIN ama isla user-kaas)
-  - Body: json fields la cusboonaysiinayo
+- PUT `/api/users/:id` (ADMIN or same user)
+  - Body: JSON fields to update
   - Response 200: `{ "success": true, "data": { ... } }`
 
-- DELETE `GamePlan/users/:id` (ADMIN ama isla user-kaas)
+- DELETE `/api/users/:id` (ADMIN or same user)
   - Response 200: `{ "success": true, "data": { ... } }`
 
 ---
@@ -124,13 +124,13 @@ Requires: `Authorization: Bearer <JWT>`
 ### Leagues
 Requires: `Authorization: Bearer <JWT>`
 
-- GET `GamePlan/leagues`
-- GET `GamePlan/leagues/:id`
-- POST `GamePlan/leagues` (ADMIN)
-- PUT `GamePlan/leagues/:id` (ADMIN)
-- DELETE `GamePlan/leagues/:id` (ADMIN)
+- GET `/api/leagues`
+- GET `/api/leagues/:id`
+- POST `/api/leagues` (ADMIN)
+- PUT `/api/leagues/:id` (ADMIN)
+- DELETE `/api/leagues/:id` (ADMIN)
 
-Tusaale Response (GET all):
+Example Response (GET all):
 ```json
 { "success": true, "count": 1, "data": [ { "id": "...", "name": "Premier League" } ] }
 ```
@@ -140,14 +140,14 @@ Tusaale Response (GET all):
 ### Teams
 Requires: `Authorization: Bearer <JWT>`
 
-- GET `GamePlan/teams`
-- GET `GamePlan/leagues/:leagueId/teams`
-- GET `GamePlan/teams/:id`
-- POST `GamePlan/teams` (ADMIN)
-- PUT `GamePlan/teams/:id` (ADMIN)
-- DELETE `GamePlan/teams/:id` (ADMIN)
+- GET `/api/teams`
+- GET `/api/leagues/:leagueId/teams`
+- GET `/api/teams/:id`
+- POST `/api/teams` (ADMIN)
+- PUT `/api/teams/:id` (ADMIN)
+- DELETE `/api/teams/:id` (ADMIN)
 
-Tusaale Request (POST):
+Example Request (POST):
 ```json
 { "name": "Team A", "leagueId": "clx..." }
 ```
@@ -157,14 +157,14 @@ Tusaale Request (POST):
 ### Players
 Requires: `Authorization: Bearer <JWT>`
 
-- GET `GamePlan/players`
-- GET `GamePlan/teams/:teamId/players`
-- GET `GamePlan/players/:id`
-- POST `GamePlan/players` (ADMIN)
-- PUT `GamePlan/players/:id` (ADMIN)
-- DELETE `GamePlan/players/:id` (ADMIN)
+- GET `/api/players`
+- GET `/api/teams/:teamId/players`
+- GET `/api/players/:id`
+- POST `/api/players` (ADMIN)
+- PUT `/api/players/:id` (ADMIN)
+- DELETE `/api/players/:id` (ADMIN)
 
-Tusaale Request (POST):
+Example Request (POST):
 ```json
 { "firstName": "Mo", "lastName": "Salah", "teamId": "clx123...", "position": "FW", "number": 11 }
 ```
@@ -174,17 +174,17 @@ Tusaale Request (POST):
 ### Fixtures
 Requires: `Authorization: Bearer <JWT>`
 
-- GET `GamePlan/fixtures`
-- GET `GamePlan/fixtures/:id`
-- GET `GamePlan/leagues/:leagueId/fixtures`
-- GET `GamePlan/teams/:teamId/fixtures`
-- GET `GamePlan/fixtures/date-range?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD`
-- POST `GamePlan/fixtures` (ADMIN)
-- PUT `GamePlan/fixtures/:id` (ADMIN)
-- PATCH `GamePlan/fixtures/:id/status` (ADMIN; status ∈ ["Scheduled","Completed","Postponed"]) 
-- DELETE `GamePlan/fixtures/:id` (ADMIN)
+- GET `/api/fixtures`
+- GET `/api/fixtures/:id`
+- GET `/api/leagues/:leagueId/fixtures`
+- GET `/api/teams/:teamId/fixtures`
+- GET `/api/fixtures/date-range?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD`
+- POST `/api/fixtures` (ADMIN)
+- PUT `/api/fixtures/:id` (ADMIN)
+- PATCH `/api/fixtures/:id/status` (ADMIN; status ∈ ["Scheduled","Completed","Postponed"]) 
+- DELETE `/api/fixtures/:id` (ADMIN)
 
-Tusaale (PATCH status):
+Example (PATCH status):
 ```json
 { "status": "Completed" }
 ```
@@ -194,19 +194,19 @@ Tusaale (PATCH status):
 ### Results
 Requires: `Authorization: Bearer <JWT>`
 
-- GET `GamePlan/results`
-- GET `GamePlan/results/:id`
-- GET `GamePlan/fixtures/:fixtureId/result`
-- GET `GamePlan/leagues/:leagueId/results`
-- GET `GamePlan/teams/:teamId/results`
-- POST `GamePlan/results` (ADMIN)
-- POST `GamePlan/fixtures/:fixtureId/result` (ADMIN; isla transaction-ka waxa uu cusboonaysiiyaa fixture) 
-- PUT `GamePlan/results/:id` (ADMIN)
-- PUT `GamePlan/fixtures/:fixtureId/result` (ADMIN)
-- DELETE `GamePlan/results/:id` (ADMIN)
-- DELETE `GamePlan/fixtures/:fixtureId/result` (ADMIN)
+- GET `/api/results`
+- GET `/api/results/:id`
+- GET `/api/fixtures/:fixtureId/result`
+- GET `/api/leagues/:leagueId/results`
+- GET `/api/teams/:teamId/results`
+- POST `/api/results` (ADMIN)
+- POST `/api/fixtures/:fixtureId/result` (ADMIN; in same transaction updates fixture) 
+- PUT `/api/results/:id` (ADMIN)
+- PUT `/api/fixtures/:fixtureId/result` (ADMIN)
+- DELETE `/api/results/:id` (ADMIN)
+- DELETE `/api/fixtures/:fixtureId/result` (ADMIN)
 
-Tusaale Request (POST /fixtures/:fixtureId/result):
+Example Request (POST /fixtures/:fixtureId/result):
 ```json
 { "homeScore": 2, "awayScore": 1 }
 ```
@@ -216,22 +216,22 @@ Tusaale Request (POST /fixtures/:fixtureId/result):
 ### Referees
 Requires: `Authorization: Bearer <JWT>`
 
-- GET `GamePlan/referees`
-- GET `GamePlan/referees/:id`
-- POST `GamePlan/referees` (ADMIN)
-- PUT `GamePlan/referees/:id` (ADMIN)
-- DELETE `GamePlan/referees/:id` (ADMIN)
+- GET `/api/referees`
+- GET `/api/referees/:id`
+- POST `/api/referees` (ADMIN)
+- PUT `/api/referees/:id` (ADMIN)
+- DELETE `/api/referees/:id` (ADMIN)
 
 ---
 
 ### Venues
 Requires: `Authorization: Bearer <JWT>`
 
-- GET `GamePlan/venues`
-- GET `GamePlan/venues/:id`
-- POST `GamePlan/venues` (ADMIN)
-- PUT `GamePlan/venues/:id` (ADMIN)
-- DELETE `GamePlan/venues/:id` (ADMIN)
+- GET `/api/venues`
+- GET `/api/venues/:id`
+- POST `/api/venues` (ADMIN)
+- PUT `/api/venues/:id` (ADMIN)
+- DELETE `/api/venues/:id` (ADMIN)
 
 ---
 
@@ -242,32 +242,32 @@ Content-Type: application/json
 ```
 
 ### Postman Notes
-- Ku dar header `Authorization: Bearer <JWT_TOKEN>` marka aad tijaabinayso endpoints (marka laga reebo `auth/register` iyo `auth/login`).
-- Dooro `Body` → `raw` → `JSON` marka aad diro JSON requests.
-- Ku dar query params sida `fixtures/date-range` adigoo isticmaalaya tab-ka `Params`.
+- Add header `Authorization: Bearer <JWT_TOKEN>` when testing endpoints (except `auth/register` and `auth/login`).
+- Select `Body` → `raw` → `JSON` when sending JSON requests.
+- Add query params like `fixtures/date-range` using the `Params` tab.
 
 ---
 
 ### Error Model & Common Responses
-- 200 OK: Request guulaysatay.
-- 201 Created: Kayd cusub ayaa la abuuray.
-- 400 Bad Request: Xog khaldan/maqan (tusaale ahaan fixtures/date-range startDate ama endDate maqan).
-- 401 Unauthorized: Token maqan ama khaldan.
-- 403 Forbidden: Doorasho aan lahayn rukhsad (ADMIN kaliya).
-- 404 Not Found: Kayd aan la helin.
-- 500 Internal Server Error: Khalad lama filaan ah.
+- 200 OK: Request successful.
+- 201 Created: New record created.
+- 400 Bad Request: Invalid/missing data (e.g., fixtures/date-range missing startDate or endDate).
+- 401 Unauthorized: Missing or invalid token.
+- 403 Forbidden: Insufficient permissions (ADMIN only).
+- 404 Not Found: Record not found.
+- 500 Internal Server Error: Unexpected error.
 
-Tusaale Error 400:
+Example Error 400:
 ```json
 { "success": false, "error": "Valid status is required (Scheduled, Completed, Postponed)" }
 ```
 
 ---
 
-### Qodobo Muhiim ah
-- Waxaa lagu talinayaa in aad mar walba dirto `Authorization: Bearer <token>` marka laga reebo `auth/register` iyo `auth/login`.
-- `status` ee fixtures waa mid ka mid ah: `Scheduled`, `Completed`, `Postponed`.
-- `fixtures/date-range` waxay u baahan tahay `startDate` iyo `endDate` query params.
-- Hadda ma jiraan pagination iyo rate limits oo lagu qeexay code-ka; haddii loo baahdo, waa la dari karaa mustaqbalka.
+### Important Notes
+- It is recommended to always send `Authorization: Bearer <token>` except for `auth/register` and `auth/login`.
+- Fixture `status` must be one of: `Scheduled`, `Completed`, `Postponed`.
+- `fixtures/date-range` requires `startDate` and `endDate` query params.
+- Currently there are no pagination and rate limits defined in the code; if needed, they can be added in the future.
 
 

@@ -11,6 +11,7 @@ import resultRoutes from './routes/result.js'
 import refereeRoutes from './routes/referee.js'
 import playerRoutes from './routes/player.js'
 import teamRoutes from './routes/team.js'
+import venues from './routes/venue.js'
 
 
 // Initialize Express app
@@ -32,7 +33,7 @@ app.use("/api", playerRoutes)    // Mount player routes second
 app.use("/api", fixtureRoutes)   // Mount fixture routes last (has /teams/:id/fixtures)
 app.use("/api", resultRoutes)
 app.use("/api", refereeRoutes)
-
+app.use("/api", venues);
 
 // Protected route example
 

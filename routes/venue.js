@@ -14,7 +14,9 @@ router.use(authenticateToken);
 // Get all venues
 router.get("/venues", async (req, res) => {
   try { 
+    console.log("Fetching all venues");
     const venues = await getAllVenues(); 
+    console.log(venues);
     res.json({ 
       success: true, 
       count: venues.length, 
