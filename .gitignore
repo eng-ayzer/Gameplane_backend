@@ -1,3 +1,50 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# OS/Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs
+logs
+*.log
+*.log.*
+
+# Builds & caches
+dist/
+build/
+.cache/
+.parcel-cache/
+.turbo/
+.next/
+coverage/
+
+# Prisma
+prisma/*.db
+prisma/*.sqlite
+prisma/migrations/**/snapshot-* 
+
+# Local data
+tmp/
+temp/
+*.local
+
+# Misc
+*.tgz
+*.swp
+*.swo
 node_modules
 # Keep environment variables out of version control
 .env
