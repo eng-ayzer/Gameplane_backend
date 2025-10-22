@@ -1,0 +1,183 @@
+{
+  "name": "Coaches API Endpoints",
+  "item": [
+    {
+      "name": "Get All Coaches",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/coaches",
+          "host": ["{{baseUrl}}"],
+          "path": ["coaches"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "    const response = pm.response.json();",
+              "    if (response.data && response.data.length > 0) {",
+              "        pm.collectionVariables.set('coachId', response.data[0].coach_id);",
+              "    }",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get Coaches by Team",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/teams/{{teamId}}/coaches",
+          "host": ["{{baseUrl}}"],
+          "path": ["teams", "{{teamId}}", "coaches"]
+        }
+      }
+    },
+    {
+      "name": "Get Coach by ID",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/coaches/{{coachId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["coaches", "{{coachId}}"]
+        }
+      }
+    },
+    {
+      "name": "Create Coach (Admin Only)",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"first_name\": \"Pep\",\n  \"last_name\": \"Guardiola\",\n  \"team_id\": \"{{teamId}}\",\n  \"email\": \"pep@example.com\",\n  \"phone\": \"+1234567890\",\n  \"license_level\": \"UEFA Pro\",\n  \"experience_years\": 15,\n  \"nationality\": \"Spanish\",\n  \"date_of_birth\": \"1971-01-18\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/coaches",
+          "host": ["{{baseUrl}}"],
+          "path": ["coaches"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "    const response = pm.response.json();",
+              "    pm.collectionVariables.set('coachId', response.data.coach_id);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update Coach (Admin Only)",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"experience_years\": 16,\n  \"phone\": \"+1234567891\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/coaches/{{coachId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["coaches", "{{coachId}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Coach (Admin Only)",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/coaches/{{coachId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["coaches", "{{coachId}}"]
+        }
+      }
+    }
+  ]
+}

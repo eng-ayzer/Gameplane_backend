@@ -53,6 +53,7 @@ model Team {
   homeFixtures Fixture[] @relation("HomeTeam")
   awayFixtures Fixture[] @relation("AwayTeam")
   players      Player[]
+  coaches      Coach[]
 }
 
 
@@ -67,6 +68,25 @@ model Player {
 
   // Relations
   team Team @relation(fields: [team_id], references: [team_id])
+}
+
+
+model Coach {
+  coach_id      String   @id @default(cuid()) // PK updated to String CUID
+  team_id       String?  // FK type updated to String, optional for coaches without teams
+  first_name    String   @db.VarChar(50)
+  last_name     String   @db.VarChar(50)
+  email         String?  @unique @db.VarChar(100)
+  phone         String?  @db.VarChar(20)
+  license_level String?  @db.VarChar(50) // e.g., "UEFA A", "UEFA B", "UEFA Pro"
+  experience_years Int?  // Years of coaching experience
+  nationality   String?  @db.VarChar(50)
+  date_of_birth DateTime?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  // Relations
+  team Team? @relation(fields: [team_id], references: [team_id])
 }
 
 

@@ -11,6 +11,7 @@ import resultRoutes from './routes/result.js'
 import refereeRoutes from './routes/referee.js'
 import playerRoutes from './routes/player.js'
 import teamRoutes from './routes/team.js'
+import coachRoutes from './routes/coach.js'
 import venues from './routes/venue.js'
 
 
@@ -30,6 +31,7 @@ app.use("/api/auth", auth)
 app.use("/api", leagueRoutes)
 app.use("/api", teamRoutes)      // Mount team routes first
 app.use("/api", playerRoutes)    // Mount player routes second
+app.use("/api", coachRoutes)     // Mount coach routes
 app.use("/api", fixtureRoutes)   // Mount fixture routes last (has /teams/:id/fixtures)
 app.use("/api", resultRoutes)
 app.use("/api", refereeRoutes)
