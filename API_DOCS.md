@@ -9,6 +9,7 @@
 - [Leagues](#leagues)
 - [Teams](#teams)
 - [Players](#players)
+- [Coaches](#coaches)
 - [Fixtures](#fixtures)
 - [Results](#results)
 - [Referees](#referees)
@@ -39,6 +40,7 @@
 - Leagues: `/api/leagues`, `/api/leagues/:id`
 - Teams: `/api/teams`, `/api/leagues/:leagueId/teams`, `/api/teams/:id`
 - Players: `/api/players`, `/api/teams/:teamId/players`, `/api/players/:id`
+- Coaches: `/api/coaches`, `/api/teams/:teamId/coaches`, `/api/coaches/:id`
 - Fixtures: `/api/fixtures`, `/api/fixtures/:id`, `/api/leagues/:leagueId/fixtures`, `/api/teams/:teamId/fixtures`, `/api/fixtures/date-range`, `/api/fixtures/:id/status`
 - Results: `/api/results`, `/api/results/:id`, `/api/fixtures/:fixtureId/result`, `/api/leagues/:leagueId/results`, `/api/teams/:teamId/results`
 - Referees: `/api/referees`, `/api/referees/:id`
@@ -167,6 +169,64 @@ Requires: `Authorization: Bearer <JWT>`
 Example Request (POST):
 ```json
 { "firstName": "Mo", "lastName": "Salah", "teamId": "clx123...", "position": "FW", "number": 11 }
+```
+
+---
+
+### Coaches
+Requires: `Authorization: Bearer <JWT>`
+
+- GET `/api/coaches`
+- GET `/api/teams/:teamId/coaches`
+- GET `/api/coaches/:id`
+- POST `/api/coaches` (ADMIN)
+- PUT `/api/coaches/:id` (ADMIN)
+- DELETE `/api/coaches/:id` (ADMIN)
+
+Example Request (POST):
+```json
+{
+  "first_name": "Pep",
+  "last_name": "Guardiola",
+  "team_id": "clx123...",
+  "email": "pep@example.com",
+  "phone": "+1234567890",
+  "license_level": "UEFA Pro",
+  "experience_years": 15,
+  "nationality": "Spanish",
+  "date_of_birth": "1971-01-18"
+}
+```
+
+Example Response (GET all):
+```json
+{
+  "success": true,
+  "count": 1,
+  "data": [
+    {
+      "coach_id": "clx...",
+      "first_name": "Pep",
+      "last_name": "Guardiola",
+      "email": "pep@example.com",
+      "phone": "+1234567890",
+      "license_level": "UEFA Pro",
+      "experience_years": 15,
+      "nationality": "Spanish",
+      "date_of_birth": "1971-01-18T00:00:00.000Z",
+      "created_at": "2024-01-01T00:00:00.000Z",
+      "updated_at": "2024-01-01T00:00:00.000Z",
+      "team": {
+        "team_id": "clx123...",
+        "name": "Manchester City",
+        "league": {
+          "league_id": "clx456...",
+          "name": "Premier League"
+        }
+      }
+    }
+  ]
+}
 ```
 
 ---
