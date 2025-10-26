@@ -10,10 +10,8 @@ import { authenticateToken, authorizeRole } from "../middleware/auth.js";
 
 const router = express.Router();
 
-//  router.use(authenticateToken);
-
 // GET all users (Admin only)
-router.get("/users", authorizeRole("ADMIN"), async (req, res) => {
+router.get("/users", authenticateToken, authorizeRole("ADMIN"), async (req, res) => {
   try {
     const users = await getAllUsers();
     res.json({ success: true, count: users.length, data: users });
@@ -23,7 +21,7 @@ router.get("/users", authorizeRole("ADMIN"), async (req, res) => {
 });
 
 // GET user by ID
-router.get("/users/:id", async (req, res) => {
+router.get("/users/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     if (req.user.role !== "ADMIN" && req.user.id !== id) {
@@ -37,7 +35,7 @@ router.get("/users/:id", async (req, res) => {
 });
 
 // POST new user (Admin only)
-router.post("/users", authorizeRole("ADMIN"), async (req, res) => {
+router.post("/users", authenticateToken, authorizeRole("ADMIN"), async (req, res) => {
   try {
     const user = await createUser(req.body);
     res.status(201).json({ success: true, data: user });
@@ -47,7 +45,7 @@ router.post("/users", authorizeRole("ADMIN"), async (req, res) => {
 });
 
 // UPDATE user
-router.put("/users/:id", async (req, res) => {
+router.put("/users/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     if (req.user.role !== "ADMIN" && req.user.id !== id) {
@@ -61,7 +59,7 @@ router.put("/users/:id", async (req, res) => {
 });
 
 // DELETE user
-router.delete("/users/:id", async (req, res) => {
+router.delete("/users/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     if (req.user.role !== "ADMIN" && req.user.id !== id) {
