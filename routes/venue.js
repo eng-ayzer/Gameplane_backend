@@ -8,6 +8,7 @@ import {
   deleteVenue 
 } from "../services/venueServices.js";
 
+// const router = express.Router();
 const router = express.Router();
 router.use(authenticateToken);
 
