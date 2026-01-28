@@ -40,6 +40,14 @@ export const authenticateToken = async (req, res, next) => {
     }
 
     req.user = user;
+    // If the authenticated user is a coach, attach their Coach profile
+    if (req.user && req.user.role === "COACH") {
+      const coach = await prisma.coach.findUnique({ where: { email: req.user.email } });
+      if (!coach) {
+        return res.status(403).json({ success: false, message: "Coach profile not found" });
+      }
+      req.coach = coach; // attach full coach record (includes team_id)
+    }
     next();
   } catch (error) {
     console.error("Auth error:", error);
