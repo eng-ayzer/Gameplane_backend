@@ -40,7 +40,7 @@
 - Leagues: `/api/leagues`, `/api/leagues/:id`
 - Teams: `/api/teams`, `/api/leagues/:leagueId/teams`, `/api/teams/:id`
 - Players: `/api/players`, `/api/teams/:teamId/players`, `/api/players/:id`
-- Coaches: `/api/coaches`, `/api/teams/:teamId/coaches`, `/api/coaches/:id`
+- Coaches: `/api/coaches`, `/api/coaches/me`, `/api/teams/:teamId/coaches`, `/api/coaches/:id`
 - Fixtures: `/api/fixtures`, `/api/fixtures/:id`, `/api/leagues/:leagueId/fixtures`, `/api/teams/:teamId/fixtures`, `/api/fixtures/date-range`, `/api/fixtures/:id/status`
 - Results: `/api/results`, `/api/results/:id`, `/api/fixtures/:fixtureId/result`, `/api/leagues/:leagueId/results`, `/api/teams/:teamId/results`
 - Referees: `/api/referees`, `/api/referees/:id`
@@ -206,24 +206,47 @@ Example Request (POST):
 Requires: `Authorization: Bearer <JWT>`
 
 - GET `/api/coaches`
+- GET `/api/coaches/me` (COACH only) — Returns logged-in coach's profile, team, and players in one response (dashboard)
 - GET `/api/teams/:teamId/coaches`
 - GET `/api/coaches/:id`
 - POST `/api/coaches` (ADMIN)
 - PUT `/api/coaches/:id` (ADMIN)
 - DELETE `/api/coaches/:id` (ADMIN)
 
-Example Request (POST):
+Example Request (POST) — `email` and `password` are required so the coach can login:
 ```json
 {
   "first_name": "Pep",
   "last_name": "Guardiola",
   "team_id": "clx123...",
   "email": "pep@example.com",
+  "password": "Secret123!",
   "phone": "+1234567890",
   "license_level": "UEFA Pro",
   "experience_years": 15,
   "nationality": "Spanish",
   "date_of_birth": "1971-01-18"
+}
+```
+
+Example Response (GET /coaches/me — COACH dashboard):
+```json
+{
+  "success": true,
+  "data": {
+    "coach_id": "clx...",
+    "first_name": "Pep",
+    "last_name": "Guardiola",
+    "email": "pep@example.com",
+    "team": {
+      "team_id": "clx123...",
+      "name": "Manchester City",
+      "league": { "league_id": "...", "name": "Premier League" },
+      "players": [
+        { "player_id": "...", "first_name": "Mo", "last_name": "Salah", "position": "FW", "jersey_number": 11 }
+      ]
+    }
+  }
 }
 ```
 

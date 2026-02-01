@@ -6,7 +6,8 @@ import {
   getCoachesByTeam, 
   createCoach, 
   updateCoach, 
-  deleteCoach 
+  deleteCoach,
+  getCoachDashboard 
 } from "../services/coachServices.js";
 
 const router = express.Router();
@@ -45,6 +46,23 @@ router.get("/teams/:teamId/coaches", async (req, res) => {
       success: false, 
       error: err.message 
     }); 
+  }
+});
+
+// Coach dashboard: get logged-in coach's profile + team + players (COACH only)
+router.get("/coaches/me", authorizeRole("COACH"), async (req, res) => {
+  try {
+    const coachId = req.coach.coach_id;
+    const dashboard = await getCoachDashboard(coachId);
+    res.json({
+      success: true,
+      data: dashboard
+    });
+  } catch (err) {
+    res.status(404).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 

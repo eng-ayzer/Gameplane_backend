@@ -2,6 +2,28 @@
   "name": "Coaches API Endpoints",
   "item": [
     {
+      "name": "Get Coach Me (Dashboard - COACH only)",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{coachToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/coaches/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["coaches", "me"]
+        }
+      }
+    },
+    {
       "name": "Get All Coaches",
       "request": {
         "auth": {
@@ -104,7 +126,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"first_name\": \"Pep\",\n  \"last_name\": \"Guardiola\",\n  \"team_id\": \"{{teamId}}\",\n  \"email\": \"pep@example.com\",\n  \"phone\": \"+1234567890\",\n  \"license_level\": \"UEFA Pro\",\n  \"experience_years\": 15,\n  \"nationality\": \"Spanish\",\n  \"date_of_birth\": \"1971-01-18\"\n}"
+          "raw": "{\n  \"first_name\": \"Pep\",\n  \"last_name\": \"Guardiola\",\n  \"team_id\": \"{{teamId}}\",\n  \"email\": \"pep@example.com\",\n  \"password\": \"Secret123!\",\n  \"phone\": \"+1234567890\",\n  \"license_level\": \"UEFA Pro\",\n  \"experience_years\": 15,\n  \"nationality\": \"Spanish\",\n  \"date_of_birth\": \"1971-01-18\"\n}"
         },
         "url": {
           "raw": "{{baseUrl}}/coaches",

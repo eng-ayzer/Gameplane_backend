@@ -30,6 +30,28 @@ export const getAllCoaches = async () => {
   });
 };
 
+// Get coach dashboard: coach profile + team + players (for logged-in coach)
+export const getCoachDashboard = async (coachId) => {
+  const coach = await prisma.coach.findUnique({
+    where: { coach_id: coachId },
+    include: {
+      team: {
+        include: {
+          league: true,
+          players: true
+        }
+      }
+    }
+  });
+
+  if (!coach) {
+    throw new Error("Coach not found");
+  }
+
+  const { password, ...safeCoach } = coach;
+  return safeCoach;
+};
+
 // Get coach by ID
 export const getCoachById = async (id) => {
   const coach = await prisma.coach.findUnique({
@@ -87,8 +109,13 @@ export const getCoachesByTeam = async (teamId) => {
   });
 };
 
-// Create new coach (also creates a linked User if password is provided)
+// Create new coach (creates Coach + User so coach can login; email and password required)
 export const createCoach = async (coachData) => {
+  // Email and password required so coach can login to the system
+  if (!coachData.email || !coachData.password) {
+    throw new Error("email and password are required so the coach can login to the system");
+  }
+
   // Check if team exists if team_id is provided
   if (coachData.team_id) {
     const team = await prisma.team.findUnique({
@@ -111,8 +138,8 @@ export const createCoach = async (coachData) => {
     }
   }
 
-  // If a password is provided, create a corresponding User account (role: COACH)
-  if (coachData.email && coachData.password) {
+  // Create Coach + User account (role: COACH) so coach can login
+  {
     // Validate minimal user fields
     if (!coachData.first_name || !coachData.last_name) {
       throw new Error("first_name and last_name are required when creating a login for a coach");
@@ -177,25 +204,6 @@ export const createCoach = async (coachData) => {
 
     return { createdUser: result.user, coach: safeCoach };
   }
-
-  // No password provided — just create coach profile
-  return await prisma.coach.create({
-    data: coachData,
-    include: {
-      team: {
-        select: {
-          team_id: true,
-          name: true,
-          league: {
-            select: {
-              league_id: true,
-              name: true
-            }
-          }
-        }
-      }
-    }
-  });
 };
 
 // Update coach (syncs email/password with User when applicable)
