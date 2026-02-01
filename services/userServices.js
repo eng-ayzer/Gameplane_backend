@@ -38,8 +38,8 @@ export async function createUser(data) {
   const existing = await prisma.user.findUnique({ where: { email: data.email } });
   if (existing) throw new Error("User with this email already exists");
 
-  // Validate role: only ADMIN, COACH, USER allowed; default to USER
-  const validRole = ["ADMIN", "COACH", "USER"].includes(data.role) ? data.role : "USER";
+  // Only ADMIN and COACH; default COACH
+  const validRole = ["ADMIN", "COACH"].includes(data.role) ? data.role : "COACH";
 
   const hashed = await bcrypt.hash(data.password, 10);
   return await prisma.user.create({

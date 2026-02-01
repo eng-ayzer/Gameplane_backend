@@ -284,14 +284,8 @@ Example Response (GET all):
 ---
 
 ### Fixtures
-Requires: `Authorization: Bearer <JWT>`
-
-- GET `/api/fixtures`
-- GET `/api/fixtures/:id`
-- GET `/api/leagues/:leagueId/fixtures`
-- GET `/api/teams/:teamId/fixtures`
-- GET `/api/fixtures/date-range?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD`
-- POST `/api/fixtures` (ADMIN)
+- **Public (no auth):** GET `/api/fixtures`, GET `/api/fixtures/:id`, GET `/api/leagues/:leagueId/fixtures`, GET `/api/teams/:teamId/fixtures`, GET `/api/fixtures/date-range?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD`
+- **Protected:** POST `/api/fixtures` (ADMIN), PUT, PATCH, DELETE (ADMIN) — require `Authorization: Bearer <JWT>`
 - PUT `/api/fixtures/:id` (ADMIN)
 - PATCH `/api/fixtures/:id/status` (ADMIN; status ∈ ["Scheduled","Completed","Postponed"]) 
 - DELETE `/api/fixtures/:id` (ADMIN)
@@ -304,14 +298,8 @@ Example (PATCH status):
 ---
 
 ### Results
-Requires: `Authorization: Bearer <JWT>`
-
-- GET `/api/results`
-- GET `/api/results/:id`
-- GET `/api/fixtures/:fixtureId/result`
-- GET `/api/leagues/:leagueId/results`
-- GET `/api/teams/:teamId/results`
-- POST `/api/results` (ADMIN)
+- **Public (no auth):** GET `/api/results`, GET `/api/results/:id`, GET `/api/fixtures/:fixtureId/result`, GET `/api/leagues/:leagueId/results`, GET `/api/teams/:teamId/results`
+- **Protected:** POST, PUT, DELETE (ADMIN) — require `Authorization: Bearer <JWT>`
 - POST `/api/fixtures/:fixtureId/result` (ADMIN; in same transaction updates fixture) 
 - PUT `/api/results/:id` (ADMIN)
 - PUT `/api/fixtures/:fixtureId/result` (ADMIN)
@@ -354,7 +342,7 @@ Content-Type: application/json
 ```
 
 ### Postman Notes
-- Add header `Authorization: Bearer <JWT_TOKEN>` when testing endpoints (except `auth/register` and `auth/login`).
+- Add header `Authorization: Bearer <JWT_TOKEN>` when testing protected endpoints. GET fixtures and GET results work without a token.
 - Select `Body` → `raw` → `JSON` when sending JSON requests.
 - Add query params like `fixtures/date-range` using the `Params` tab.
 
@@ -377,7 +365,7 @@ Example Error 400:
 ---
 
 ### Important Notes
-- It is recommended to always send `Authorization: Bearer <token>` except for `auth/register` and `auth/login`.
+- Send `Authorization: Bearer <token>` for protected endpoints. Public: GET fixtures and GET results need no token; auth/register and auth/login need no token.
 - Fixture `status` must be one of: `Scheduled`, `Completed`, `Postponed`.
 - `fixtures/date-range` requires `startDate` and `endDate` query params.
 - Currently there are no pagination and rate limits defined in the code; if needed, they can be added in the future.

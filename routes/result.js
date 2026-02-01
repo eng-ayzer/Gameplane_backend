@@ -16,8 +16,8 @@ import {
 } from "../services/result.services.js";
 
 const router = express.Router();
-router.use(authenticateToken);
 
+// ——— Public (no login): GET results ———
 // Get all results
 router.get("/results", async (req, res) => {
   try {
@@ -101,8 +101,9 @@ router.get("/teams/:teamId/results", async (req, res) => {
   }
 });
 
+// ——— Protected (login required): write operations ———
 // Create new result (Admin only)
-router.post("/results", authorizeRole("ADMIN"), async (req, res) => {
+router.post("/results", authenticateToken, authorizeRole("ADMIN"), async (req, res) => {
   try {
     const created = await createResult(req.body);
     res.status(201).json({
@@ -118,7 +119,7 @@ router.post("/results", authorizeRole("ADMIN"), async (req, res) => {
 });
 
 // Create result and update fixture status in one transaction (Admin only)
-router.post("/fixtures/:fixtureId/result", authorizeRole("ADMIN"), async (req, res) => {
+router.post("/fixtures/:fixtureId/result", authenticateToken, authorizeRole("ADMIN"), async (req, res) => {
   try {
     const result = await createResultAndUpdateFixture(req.params.fixtureId, req.body);
     res.status(201).json({
@@ -134,7 +135,7 @@ router.post("/fixtures/:fixtureId/result", authorizeRole("ADMIN"), async (req, r
 });
 
 // Update result by ID (Admin only)
-router.put("/results/:id", authorizeRole("ADMIN"), async (req, res) => {
+router.put("/results/:id", authenticateToken, authorizeRole("ADMIN"), async (req, res) => {
   try {
     const updated = await updateResult(req.params.id, req.body);
     res.json({
@@ -150,7 +151,7 @@ router.put("/results/:id", authorizeRole("ADMIN"), async (req, res) => {
 });
 
 // Update result by fixture ID (Admin only)
-router.put("/fixtures/:fixtureId/result", authorizeRole("ADMIN"), async (req, res) => {
+router.put("/fixtures/:fixtureId/result", authenticateToken, authorizeRole("ADMIN"), async (req, res) => {
   try {
     const updated = await updateResultByFixture(req.params.fixtureId, req.body);
     res.json({
@@ -166,7 +167,7 @@ router.put("/fixtures/:fixtureId/result", authorizeRole("ADMIN"), async (req, re
 });
 
 // Delete result by ID (Admin only)
-router.delete("/results/:id", authorizeRole("ADMIN"), async (req, res) => {
+router.delete("/results/:id", authenticateToken, authorizeRole("ADMIN"), async (req, res) => {
   try {
     const deleted = await deleteResult(req.params.id);
     res.json({
@@ -182,7 +183,7 @@ router.delete("/results/:id", authorizeRole("ADMIN"), async (req, res) => {
 });
 
 // Delete result by fixture ID (Admin only)
-router.delete("/fixtures/:fixtureId/result", authorizeRole("ADMIN"), async (req, res) => {
+router.delete("/fixtures/:fixtureId/result", authenticateToken, authorizeRole("ADMIN"), async (req, res) => {
   try {
     const deleted = await deleteResultByFixture(req.params.fixtureId);
     res.json({
