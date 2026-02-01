@@ -38,9 +38,13 @@ router.get("/users/:id", authenticateToken, async (req, res) => {
 router.post("/users", authenticateToken, authorizeRole("ADMIN"), async (req, res) => {
   try {
     const user = await createUser(req.body);
-    res.status(201).json({ success: true, data: user });
+    res.status(201).json({ 
+      success: true, 
+      data: user });
   } catch (error) {
-    res.status(400).json({ success: false, error: error.message });
+    res.status(400).json({ 
+      success: false, 
+      error: error.message });
   }
 });
 
