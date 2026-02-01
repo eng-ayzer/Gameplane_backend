@@ -174,12 +174,16 @@ export const createCoach = async (coachData) => {
         }
       });
 
-      // Prepare coach payload: include hashed password in coach record as well
-      const { password, ...coachPayloadPartial } = coachData;
-      const coachPayload = { ...coachPayloadPartial, password: hashedPassword };
+      // Prepare coach payload: use team connect (relation) instead of team_id
+      const { password, team_id, ...coachPayloadPartial } = coachData;
+      const coachDataForCreate = {
+        ...coachPayloadPartial,
+        password: hashedPassword,
+        ...(team_id && { team: { connect: { team_id } } })
+      };
 
       const coach = await tx.coach.create({
-        data: coachPayload,
+        data: coachDataForCreate,
         include: {
           team: {
             select: {
@@ -268,19 +272,21 @@ export const updateCoach = async (id, updateData) => {
         }, select: { id: true, email: true } });
       }
 
-      // Prepare coach payload and hash coach password if provided
+      // Prepare coach payload: convert team_id to team connect
       let coachPayload = { ...updateData };
       if (updateData.password) {
         coachPayload.password = await bcrypt.hash(updateData.password, 10);
       }
-      const { password, ...coachPayloadNoPlain } = coachPayload;
+      const { password, team_id, ...rest } = coachPayload;
+      const coachUpdateData = {
+        ...rest,
+        updated_at: new Date(),
+        ...(team_id !== undefined && (team_id ? { team: { connect: { team_id } } } : { team: { disconnect: true } }))
+      };
 
       const updatedCoach = await tx.coach.update({
         where: { coach_id: id },
-        data: {
-          ...coachPayloadNoPlain,
-          updated_at: new Date()
-        },
+        data: coachUpdateData,
         include: {
           team: {
             select: {
@@ -304,19 +310,21 @@ export const updateCoach = async (id, updateData) => {
   }
 
   // No user sync needed — simple coach update
-  // Hash password here if provided and remove plain password before update
+  // Hash password here if provided; convert team_id to team connect
   let coachUpdatePayload = { ...updateData };
   if (updateData.password) {
     coachUpdatePayload.password = await bcrypt.hash(updateData.password, 10);
   }
-  const { password, ...coachUpdateSafe } = coachUpdatePayload;
+  const { password, team_id, ...rest } = coachUpdatePayload;
+  const coachUpdateData = {
+    ...rest,
+    updated_at: new Date(),
+    ...(team_id !== undefined && (team_id ? { team: { connect: { team_id } } } : { team: { disconnect: true } }))
+  };
 
   const updated = await prisma.coach.update({
     where: { coach_id: id },
-    data: {
-      ...coachUpdateSafe,
-      updated_at: new Date()
-    },
+    data: coachUpdateData,
     include: {
       team: {
         select: {
