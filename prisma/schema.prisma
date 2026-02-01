@@ -78,6 +78,8 @@ model Coach {
   last_name     String   @db.VarChar(50)
   email         String?  @unique @db.VarChar(100)
   phone         String?  @db.VarChar(20)
+  password      String?  @db.VarChar(255) // Hashed password for coach logins (optional)
+  //password      String?  @db.VarChar(255)  Hashed password for coach logins (optional)
   license_level String?  @db.VarChar(50) // e.g., "UEFA A", "UEFA B", "UEFA Pro"
   experience_years Int?  // Years of coaching experience
   nationality   String?  @db.VarChar(50)
