@@ -113,7 +113,7 @@ router.post("/coaches", authorizeRole("ADMIN"), async (req, res) => {
   }
 });
 
-// Update coach (Admin only)
+// Update coach (Admin only_)
 router.put("/coaches/:id", authorizeRole("ADMIN"), async (req, res) => {
   try { 
     const updated = await updateCoach(req.params.id, req.body);

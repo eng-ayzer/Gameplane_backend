@@ -174,7 +174,7 @@ export const createCoach = async (coachData) => {
         }
       });
 
-      // Prepare coach payload: use team connect (relation) instead of team_id
+      // Prepare_ coach payload: use team connect (relation) instead of team_id
       const { password, team_id, ...coachPayloadPartial } = coachData;
       const coachDataForCreate = {
         ...coachPayloadPartial,
