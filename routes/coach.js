@@ -6,7 +6,8 @@ import {
   getCoachesByTeam, 
   createCoach, 
   updateCoach, 
-  deleteCoach 
+  deleteCoach,
+  getCoachDashboard 
 } from "../services/coachServices.js";
 
 const router = express.Router();
@@ -48,6 +49,23 @@ router.get("/teams/:teamId/coaches", async (req, res) => {
   }
 });
 
+// Coach dashboard: get logged-in coach's profile + team + players (COACH only)
+router.get("/coaches/me", authorizeRole("COACH"), async (req, res) => {
+  try {
+    const coachId = req.coach.coach_id;
+    const dashboard = await getCoachDashboard(coachId);
+    res.json({
+      success: true,
+      data: dashboard
+    });
+  } catch (err) {
+    res.status(404).json({
+      success: false,
+      error: err.message
+    });
+  }
+});
+
 // Get coach by ID
 router.get("/coaches/:id", async (req, res) => {
   try { 
@@ -68,7 +86,20 @@ router.get("/coaches/:id", async (req, res) => {
 // Create new coach (Admin only)
 router.post("/coaches", authorizeRole("ADMIN"), async (req, res) => {
   try { 
-    const created = await createCoach(req.body); 
+    const created = await createCoach(req.body);
+
+    // If a user was created along with the coach (password provided), return both
+    if (created && created.createdUser) {
+      return res.status(201).json({
+        success: true,
+        message: "Coach and user account created",
+        data: {
+          user: created.createdUser,
+          coach: created.coach
+        }
+      });
+    }
+
     res.status(201).json({ 
       success: true, 
       data: created 
@@ -85,7 +116,16 @@ router.post("/coaches", authorizeRole("ADMIN"), async (req, res) => {
 // Update coach (Admin only)
 router.put("/coaches/:id", authorizeRole("ADMIN"), async (req, res) => {
   try { 
-    const updated = await updateCoach(req.params.id, req.body); 
+    const updated = await updateCoach(req.params.id, req.body);
+
+    // If we synced a user record, return both
+    if (updated && (updated.updatedUser || updated.updatedCoach)) {
+      return res.json({
+        success: true,
+        data: updated
+      });
+    }
+
     res.json({ 
       success: true, 
       data: updated 

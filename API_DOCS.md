@@ -40,7 +40,7 @@
 - Leagues: `/api/leagues`, `/api/leagues/:id`
 - Teams: `/api/teams`, `/api/leagues/:leagueId/teams`, `/api/teams/:id`
 - Players: `/api/players`, `/api/teams/:teamId/players`, `/api/players/:id`
-- Coaches: `/api/coaches`, `/api/teams/:teamId/coaches`, `/api/coaches/:id`
+- Coaches: `/api/coaches`, `/api/coaches/me`, `/api/teams/:teamId/coaches`, `/api/coaches/:id`
 - Fixtures: `/api/fixtures`, `/api/fixtures/:id`, `/api/leagues/:leagueId/fixtures`, `/api/teams/:teamId/fixtures`, `/api/fixtures/date-range`, `/api/fixtures/:id/status`
 - Results: `/api/results`, `/api/results/:id`, `/api/fixtures/:fixtureId/result`, `/api/leagues/:leagueId/results`, `/api/teams/:teamId/results`
 - Referees: `/api/referees`, `/api/referees/:id`
@@ -89,6 +89,10 @@ Note: `server.js` mounts routes as follows: users/teams/players/fixtures/results
     }
     ```
   - Notes: Token expiry 24h.
+
+  - Middleware behavior:
+    - `authenticateToken` verifies the JWT and attaches `req.user` (id, firstName, lastName, email, phone, role, createdAt). If the authenticated user is a COACH, the middleware also attaches `req.coach` (full coach profile including `team_id`). Missing token returns **401** (`Access token required`). Invalid/expired token returns **403** (`Invalid or expired token`). If a COACH account exists but no coach profile is found, the middleware returns **403** (`Coach profile not found`).
+    - `authorizeRole(...roles)` restricts access by role and returns **403** on insufficient permissions.
 
 ---
 
@@ -142,12 +146,23 @@ Example Response (GET all):
 ### Teams
 Requires: `Authorization: Bearer <JWT>`
 
+Notes: Role-specific behavior — **ADMIN** has full access; **COACH** can only view and update their assigned team (`req.coach.team_id`).
+
 - GET `/api/teams`
+  - ADMIN: returns all teams.
+  - COACH: returns only the coach's assigned team (if any).
 - GET `/api/leagues/:leagueId/teams`
+  - ADMIN & COACH: returns teams for the league (COACH may only see their team in effect).
 - GET `/api/teams/:id`
-- POST `/api/teams` (ADMIN)
-- PUT `/api/teams/:id` (ADMIN)
-- DELETE `/api/teams/:id` (ADMIN)
+  - ADMIN: allowed.
+  - COACH: allowed only if `id` equals `req.coach.team_id` (403 otherwise).
+- POST `/api/teams`
+  - ADMIN only.
+- PUT `/api/teams/:id`
+  - ADMIN: allowed.
+  - COACH: allowed only for their own team (`req.coach.team_id`), otherwise 403.
+- DELETE `/api/teams/:id`
+  - ADMIN only.
 
 Example Request (POST):
 ```json
@@ -159,12 +174,26 @@ Example Request (POST):
 ### Players
 Requires: `Authorization: Bearer <JWT>`
 
+Notes: Role-specific behavior — **ADMIN** has full access; **COACH** is limited to their own team (middleware sets `req.coach.team_id`).
+
 - GET `/api/players`
+  - ADMIN: returns all players.
+  - COACH: returns only players in their `req.coach.team_id`.
 - GET `/api/teams/:teamId/players`
+  - ADMIN: can fetch any team's players.
+  - COACH: can fetch only their own team (403 if `teamId` !== `req.coach.team_id`).
 - GET `/api/players/:id`
-- POST `/api/players` (ADMIN)
-- PUT `/api/players/:id` (ADMIN)
-- DELETE `/api/players/:id` (ADMIN)
+  - ADMIN: allowed.
+  - COACH: allowed only if the player's `team_id` matches `req.coach.team_id` (403 otherwise).
+- POST `/api/players`
+  - ADMIN: can create player for any team.
+  - COACH: can create player only for their own team — `req.body.team_id` must equal `req.coach.team_id` (403 otherwise).
+- PUT `/api/players/:id`
+  - ADMIN: allowed.
+  - COACH: allowed only for players in their team; coach cannot change `team_id` to move a player to another team (403 if attempted).
+- DELETE `/api/players/:id`
+  - ADMIN: allowed.
+  - COACH: allowed only for players in their team.
 
 Example Request (POST):
 ```json
@@ -177,24 +206,47 @@ Example Request (POST):
 Requires: `Authorization: Bearer <JWT>`
 
 - GET `/api/coaches`
+- GET `/api/coaches/me` (COACH only) — Returns logged-in coach's profile, team, and players in one response (dashboard)
 - GET `/api/teams/:teamId/coaches`
 - GET `/api/coaches/:id`
 - POST `/api/coaches` (ADMIN)
 - PUT `/api/coaches/:id` (ADMIN)
 - DELETE `/api/coaches/:id` (ADMIN)
 
-Example Request (POST):
+Example Request (POST) — `email` and `password` are required so the coach can login:
 ```json
 {
   "first_name": "Pep",
   "last_name": "Guardiola",
   "team_id": "clx123...",
   "email": "pep@example.com",
+  "password": "Secret123!",
   "phone": "+1234567890",
   "license_level": "UEFA Pro",
   "experience_years": 15,
   "nationality": "Spanish",
   "date_of_birth": "1971-01-18"
+}
+```
+
+Example Response (GET /coaches/me — COACH dashboard):
+```json
+{
+  "success": true,
+  "data": {
+    "coach_id": "clx...",
+    "first_name": "Pep",
+    "last_name": "Guardiola",
+    "email": "pep@example.com",
+    "team": {
+      "team_id": "clx123...",
+      "name": "Manchester City",
+      "league": { "league_id": "...", "name": "Premier League" },
+      "players": [
+        { "player_id": "...", "first_name": "Mo", "last_name": "Salah", "position": "FW", "jersey_number": 11 }
+      ]
+    }
+  }
 }
 ```
 
