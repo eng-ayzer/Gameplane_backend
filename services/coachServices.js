@@ -203,7 +203,7 @@ export const createCoach = async (coachData) => {
       return { user, coach };
     });
 
-    // Remove password before returning
+    // Remove password before returning_
     const { password: _p, ...safeCoach } = result.coach;
 
     return { createdUser: result.user, coach: safeCoach };

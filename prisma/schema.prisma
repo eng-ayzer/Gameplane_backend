@@ -39,7 +39,7 @@ model League {
   // Relations
   fixtures  Fixture[]
   teams     Team[]
-  //wax
+  //wa
 }
 
 

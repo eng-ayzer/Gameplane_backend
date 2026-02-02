@@ -14,7 +14,9 @@ router.get("/referees", async (req, res) => {
       }); 
     }
   catch (err) { 
-    res.status(500).json({ success: false, error: err.message }); }
+    res.status(500).json({ 
+      success: false, 
+      error: err.message }); }
 });
 
 router.get("/referees/:id", async (req, res) => {
@@ -23,11 +25,19 @@ router.get("/referees/:id", async (req, res) => {
     
     success: true, data: item }); }
   catch (err) {
-     res.status(404).json({ success: false, error: err.message }); }
+     res.status(404).json({
+       success: false,
+        error: err.message }); }
 });
 
 router.post("/referees", authorizeRole("ADMIN"), async (req, res) => {
-  try { const created = await createReferee(req.body); res.status(201).json({ success: true, data: created }); }
+  try { const created = await createReferee(req.body); 
+    res.status(201).json
+    ({ 
+      success: true,
+       data: created 
+
+  }); }
   catch (err) { res.status(400).json({ success: false, error: err.message }); }
 });
 
