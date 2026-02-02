@@ -118,7 +118,7 @@ router.put("/coaches/:id", authorizeRole("ADMIN"), async (req, res) => {
   try { 
     const updated = await updateCoach(req.params.id, req.body);
 
-    // If we synced a user record, return both
+    // If we synced a user record, returnn both_
     if (updated && (updated.updatedUser || updated.updatedCoach)) {
       return res.json({
         success: true,
