@@ -29,8 +29,8 @@ router.post("/register", async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Validate role: only ADMIN, COACH, USER allowed; default to USER for public registration
-    const validRole = ["ADMIN", "COACH", "USER"].includes(role) ? role : "USER";
+    // Only ADMIN and COACH have accounts; public visitors see fixtures/results without login
+    const validRole = ["ADMIN", "COACH"].includes(role) ? role : "COACH";
 
     const newUser = await prisma.user.create({
       data: {

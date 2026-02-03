@@ -9,7 +9,8 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:fix-user-role": "node scripts/migrate-user-role-to-coach.js"
   },
   "author": "gamePlane team",
   "license": "ISC",
